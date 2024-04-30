@@ -16,8 +16,8 @@ def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
     lr = d_model ** (-0.5) * min(step_num ** (-0.5), step_num * warmup_steps ** (-1.5))
     return lr
 def bleu_score(infer, candi):
-    candi_numpy = candi.detach().numpy().astype(str).tolist()
-    infer_numpy = infer.detach().numpy().astype(str).tolist()
+    candi_numpy = candi.to('cpu').detach().numpy().astype(str).tolist()
+    infer_numpy = infer.to('cpu').detach().numpy().astype(str).tolist()
     return nltk.translate.bleu_score.corpus_bleu(infer_numpy,candi_numpy)
 
 def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
