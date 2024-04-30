@@ -13,7 +13,7 @@ class Encoder(nn.Module):
         self.eps = eps
         self.d_ff = d_ff
         self.head = head
-        self.device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.encoder_layer = nn.ModuleList([EncoderLayer.EncoderLayer(self.dembed, self.dmodel,self.d_ff, self.head, self.active, self.drop_rate, self.eps ) for i in range(self.layer)])
     
     def forward(self, x, mask = None):

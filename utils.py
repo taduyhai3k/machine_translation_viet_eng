@@ -57,7 +57,7 @@ def eval(model, data_loader,optimizer, is_training = True):
     mean_loss = 0        
     infer = None
     candidate = None    
-    device = 'gpu' if torch.cuda.is_available() else 'cpu'    
+    device = 'cuda' if torch.cuda.is_available() else 'cpu'    
     if is_training:
         model.train()
         data_iter = tqdm(data_loader, desc='Training', leave=False)        

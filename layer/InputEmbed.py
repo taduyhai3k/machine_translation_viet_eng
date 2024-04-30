@@ -3,7 +3,7 @@ import torch.nn as nn
 class InpEmbed(nn.Module):
     def __init__(self, vocab_size, dembed = 512) -> None:
         super().__init__()
-        self.device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.vocab_size = vocab_size
         self.dembed = dembed
         self.map = torch.randn(size = [self.vocab_size, self.dembed], dtype = torch.float32, requires_grad= False, device = self.device)

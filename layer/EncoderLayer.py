@@ -5,7 +5,7 @@ from layer import FeedForward as FF
 class EncoderLayer(torch.nn.Module):
     def __init__(self, dembed = 512, dmodel = 512, d_ff = 2048, head = 8, active = 'relu', dropout = 0.1, eps = 1e-5) -> None:
         super().__init__()
-        self.device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.dmodel = dmodel
         self.dembed = dembed
         self.d_ff = d_ff

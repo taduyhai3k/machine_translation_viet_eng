@@ -6,7 +6,7 @@ class MultiHeadAtten(nn.Module):
         self.dmodel = dmodel
         self.dembed = dembed
         self.head = head
-        self.device = 'gpu' if torch.cuda.is_available() else 'cpu'
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.q = nn.Linear(in_features= self.dembed, out_features= self.dmodel, dtype= torch.float32, device= self.device)
         self.k = nn.Linear(in_features= self.dembed, out_features= self.dmodel, dtype= torch.float32, device= self.device)
         self.v = nn.Linear(in_features= self.dembed, out_features= self.dmodel, dtype= torch.float32, device= self.device)
