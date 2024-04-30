@@ -16,7 +16,7 @@ def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
     lr = d_model ** (-0.5) * min(step_num ** (-0.5), step_num * warmup_steps ** (-1.5))
     return lr
 def bleu_score(infer, candi):
-    candi_numpy = candi.argmax(dim = -1).detach().numpy().astype(str).tolist()
+    candi_numpy = candi.detach().numpy().astype(str).tolist()
     infer_numpy = infer.detach().numpy().astype(str).tolist()
     return nltk.translate.bleu_score.corpus_bleu(infer_numpy,candi_numpy)
 
@@ -72,7 +72,7 @@ def eval(model, data_loader,optimizer, is_training = True):
             if infer is not None:
                 infer = torch.cat([infer, output], dim = 0)
             else:
-                infer = output
+                infer = output.argmax(dim = -1)
             if candidate is not None:
                 candidate = torch.cat([candidate, target], dim = 0)   
             else:
