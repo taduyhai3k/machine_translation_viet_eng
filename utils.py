@@ -60,7 +60,7 @@ def eval(model, data_loader,optimizer, is_training = True):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'    
     if is_training:
         model.train()
-        data_iter = tqdm(data_loader, desc='Training', leave=False)        
+        data_iter = tqdm(data_loader, desc='Training', position=0, leave=True)        
         for input, target in data_iter:
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
@@ -83,7 +83,7 @@ def eval(model, data_loader,optimizer, is_training = True):
             mean_loss = 0        
             infer = None
             candidate = None
-            data_iter = tqdm(data_loader, desc='Not training', leave=False)        
+            data_iter = tqdm(data_loader, desc='Not training', position=0, leave=True)        
             for input, target in data_iter:
                 input, target = input.to(device), target.to(device)
                 output = model(input)
@@ -108,7 +108,7 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
         model, optimizer, scheduler, epoch_old = torch.load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    
-    for i in tqdm(range(epoch - epoch_old), desc='Epoch', leave=False):
+    for i in tqdm(range(epoch - epoch_old), desc='Epoch', position=0, leave=True):
         result_train =  eval(model, datatrain_loader, optimizer, True)
         scheduler.step()        
         if datavalid_loader is not None:
