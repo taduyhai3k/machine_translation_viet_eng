@@ -70,7 +70,7 @@ def eval(model, data_loader,optimizer, is_training = True):
             loss.backward()
             optimizer.step()       
             if infer is not None:
-                infer = torch.cat([infer, output], dim = 0)
+                infer = torch.cat([infer, output.argmax(dim = -1)], dim = 0)
             else:
                 infer = output.argmax(dim = -1)
             if candidate is not None:
