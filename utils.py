@@ -1,6 +1,7 @@
 import torch
 import numpy
 import nltk
+from tqdm import tqdm
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
 def SparseCrossEntropy(true, pred):
@@ -10,6 +11,8 @@ def SparseCrossEntropy(true, pred):
     return (torch.log(pred_tmp) * -1 ).sum() 
 
 def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
+    if step_num == 0:
+        step_num += 1
     lr = d_model ** (-0.5) * min(step_num ** (-0.5), step_num * warmup_steps ** (-1.5))
     return lr
 def bleu_score(infer, candi):
@@ -57,7 +60,8 @@ def eval(model, data_loader,optimizer, is_training = True):
     device = 'gpu' if torch.cuda.is_available() else 'cpu'    
     if is_training:
         model.train()
-        for input, target in data_loader:
+        data_iter = tqdm(data_loader, desc='Training', leave=False)        
+        for input, target in data_iter:
             input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
             output = model(input, target)
@@ -79,7 +83,8 @@ def eval(model, data_loader,optimizer, is_training = True):
             mean_loss = 0        
             infer = None
             candidate = None
-            for input, target in data_loader:
+            data_iter = tqdm(data_loader, desc='Not training', leave=False)        
+            for input, target in data_iter:
                 input, target = input.to(device), target.to(device)
                 output = model(input)
                 loss  = SparseCrossEntropy(target, output)
@@ -96,14 +101,14 @@ def eval(model, data_loader,optimizer, is_training = True):
                 
                     
 
-def train(path, model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None):
+def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = None):
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num))
     tmp_score = 1e30
     if path is not None:
         model, optimizer, scheduler, epoch_old = torch.load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    
-    for i in range(epoch - epoch_old):
+    for i in tqdm(range(epoch - epoch_old), desc='Epoch', leave=False):
         result_train =  eval(model, datatrain_loader, optimizer, True)
         scheduler.step()        
         if datavalid_loader is not None:

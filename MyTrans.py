@@ -20,4 +20,4 @@ class Transformer(nn.Module):
         out_embed = self.out_embed(y)
         decoder_out = self.decoder(out_embed, encoder_out, LookAheadMask.look_ahead_mask(inp_len= y.shape[1]))
         return self.linear(decoder_out)    
-    
+ 

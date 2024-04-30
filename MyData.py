@@ -31,7 +31,7 @@ class MyTokenizer():
         return ' '.join(results)     
     
 class EV_Data(Dataset):
-    def __init__(self, data_path, E_vocab_path = 'vocab/vocab_E.json' , V_vocab_path = 'vocab_V.json', inp = 'E', out = 'V', max_length = 300 ) -> None:
+    def __init__(self, data_path, E_vocab_path = 'vocab/vocab_E.json' , V_vocab_path = 'vocab/vocab_V.json', inp = 'E', out = 'V', max_length = 300 ) -> None:
         super().__init__()
         self.inp = inp
         self.out = out
