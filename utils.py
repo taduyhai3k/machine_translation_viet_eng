@@ -86,7 +86,7 @@ def eval(model, data_loader,optimizer, is_training = True):
             data_iter = tqdm(data_loader, desc='Not training', position=0, leave=True)        
             for input, target in data_iter:
                 input, target = input.to(device), target.to(device)
-                output = model(input)
+                output = model(input, target)
                 loss  = SparseCrossEntropy(target, output)
                 mean_loss += loss.item()
                 #if infer is not None:
