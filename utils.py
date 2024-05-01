@@ -121,5 +121,5 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
             result_test = [0,0]            
         print(f'\n Loss train {result_train[0]}, Bleu train {result_train[1]};Loss valid {result_valid[0]}, Bleu valid {result_valid[1]};Loss test {result_test[0]}, Bleu test {result_test[1]}.')    
         if result_train[0] + result_valid[0] + result_test [0] < tmp_score:
-            save('checkpoint/bestmodel.pth', model, optimizer, scheduler)
+            save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i)
             tmp = result_train[0] + result_valid[0] + result_test [0]
