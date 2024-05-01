@@ -62,21 +62,21 @@ def eval(model, data_loader,optimizer, is_training = True):
         model.train()
         data_iter = tqdm(data_loader, desc='Training', position=0, leave=True)        
         for input, target in data_iter:
-            input, target = input.to(device), target.to(device)
             optimizer.zero_grad()
+            input, target = input.to(device), target.to(device)
             output = model(input, target)
             loss = SparseCrossEntropy(target, output)
             mean_loss += loss.item()
             loss.backward()
             optimizer.step()       
-            if infer is not None:
-                infer = torch.cat([infer, output.argmax(dim = -1)], dim = 0)
-            else:
-                infer = output.argmax(dim = -1)
-            if candidate is not None:
-                candidate = torch.cat([candidate, target], dim = 0)   
-            else:
-                candidate = target                 
+            #if infer is not None:
+                #infer = torch.cat([infer, output.to('cpu').argmax(dim = -1)], dim = 0)
+            #else:
+                #infer = output.to('cpu').argmax(dim = -1)
+            #if candidate is not None:
+                #candidate = torch.cat([candidate, target.to('cpu')], dim = 0)   
+            #else:
+                #candidate = target.to('cpu')                 
     else:
         model.eval()    
         with torch.no_grad():
@@ -89,15 +89,15 @@ def eval(model, data_loader,optimizer, is_training = True):
                 output = model(input)
                 loss  = SparseCrossEntropy(target, output)
                 mean_loss += loss.item()
-                if infer is not None:
-                    infer = torch.cat([infer, output], dim = 0)
-                else:
-                    infer = output
-                if candidate is not None:
-                    candidate = torch.cat([candidate, target], dim = 0)   
-                else:
-                    candidate = target      
-    return mean_loss, bleu_score(infer, candidate)            
+                #if infer is not None:
+                    #infer = torch.cat([infer, output], dim = 0)
+                #else:
+                    #infer = output
+                #if candidate is not None:
+                    #candidate = torch.cat([candidate, target], dim = 0)   
+                #else:
+                    #candidate = target      
+    return mean_loss, 0            
                 
                     
 
