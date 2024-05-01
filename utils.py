@@ -35,12 +35,13 @@ def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
                 return out_tokenizer.decode(out_encode.reshape(-1))
     return out_tokenizer.decode(out_encode.reshape(-1))     
 
-def save(path, model, optimizer, scheduler, epoch):
+def save(path, model, optimizer, scheduler, epoch, score):
     state = {
         'model' : model.state_dict(),
         'optimizer': optimizer.state_dict(),
         'scheduler': scheduler.state_dict(),
-        'epoch': epoch
+        'epoch': epoch,
+        'score': score
     }           
     torch.save(state, path)
 
@@ -51,7 +52,8 @@ def load(path, model, optimizer, scheduler):
     scheduler.load_state_dict(state['scheduler'])
     scheduler.optimizer = optimizer
     epoch = state['epoch']
-    return model, optimizer, scheduler, epoch            
+    score = state['score']
+    return model, optimizer, scheduler, epoch, score            
 
 def eval(model, data_loader,optimizer, is_training = True):
     mean_loss = 0        
@@ -105,7 +107,7 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num))
     tmp_score = 1e30
     if path is not None:
-        model, optimizer, scheduler, epoch_old = torch.load(path, model, optimizer, scheduler)
+        model, optimizer, scheduler, epoch_old, tmp_score = torch.load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    
     for i in tqdm(range(epoch - epoch_old), desc='Epoch', position=0, leave=True):
@@ -121,5 +123,5 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
             result_test = [0,0]            
         print(f'\n Loss train {result_train[0]}, Bleu train {result_train[1]};Loss valid {result_valid[0]}, Bleu valid {result_valid[1]};Loss test {result_test[0]}, Bleu test {result_test[1]}.')    
         if result_train[0] + result_valid[0] + result_test [0] < tmp_score:
-            save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i)
-            tmp = result_train[0] + result_valid[0] + result_test [0]
+            save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
+            tmp_score = result_train[0] + result_valid[0] + result_test [0]
