@@ -13,9 +13,10 @@ class Transformer(nn.Module):
         self.inp_embed = InputEmbed.InpEmbed(input_vocab_size, dembed)
         self.out_embed = InputEmbed.InpEmbed(output_vocab_size, dembed)
         self.linear = nn.Linear(in_features= dmodel, out_features= output_vocab_size, device = self.device, dtype = torch.float32)
+        self.dropout = nn.Dropout(p = dropout)
     
     def forward(self, x, y):
-        inp_embed = self.inp_embed(x)
+        inp_embed = self.dropout(self.inp_embed(x))
         encoder_out = self.encoder(inp_embed)
         out_embed = self.out_embed(y)
         decoder_out = self.decoder(out_embed, encoder_out, LookAheadMask.look_ahead_mask(inp_len= y.shape[1]))
