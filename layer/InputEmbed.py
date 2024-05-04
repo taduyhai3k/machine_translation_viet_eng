@@ -14,8 +14,8 @@ class InpEmbed(nn.Module):
     
 def embed_position(dembed = 512, sequence_length = 300, device = 'cpu'):
     #dembed is 2n
-    ep = torch.arange(start= 0,end= dembed, step= 1, dtype= torch.float32, device = device).repeat([sequence_length, 1])    
-    ep[1::2] = ep[0::2]   
+    ep = torch.arange(start= 0,end= dembed, step= 1, dtype= torch.float32, device = device).reshape([1, -1]).repeat([sequence_length, 1])    
+    ep[:,1::2] = ep[:, 0::2]   
     ep = 1/ (10000**(ep/dembed)) 
     pos = torch.arange(start= 0,end= sequence_length, step= 1, dtype= torch.float32, device = device).reshape([1, -1]).transpose(0,1).repeat([1, dembed])
     pos = pos * ep
