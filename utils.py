@@ -1,4 +1,5 @@
 import torch
+import os
 import numpy as np
 import nltk
 from tqdm import tqdm
@@ -63,7 +64,7 @@ def load(path, model, optimizer, scheduler):
     score = state['score']
     return model, optimizer, scheduler, epoch, score            
 
-def eval(model, data_loader,optimizer, is_training = True):
+def eval(model, data_loader,optimizer, scheduler, is_training = True):
     mean_loss = []      
     acc = []  
     infer = None
@@ -80,7 +81,8 @@ def eval(model, data_loader,optimizer, is_training = True):
             mean_loss.append(loss.item())
             acc.append(accuracy(target, output).item())
             loss.backward()
-            optimizer.step()       
+            optimizer.step()
+            scheduler.step()       
             #if infer is not None:
                 #infer = torch.cat([infer, output.to('cpu').argmax(dim = -1)], dim = 0)
             #else:
@@ -123,17 +125,22 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
     else:
         epoch_old = 0    
     for i in tqdm(range(epoch - epoch_old), desc='Epoch', position=0, leave=True):
-        result_train =  eval(model, datatrain_loader, optimizer, True)
-        scheduler.step()        
+        result_train =  eval(model, datatrain_loader, optimizer, scheduler, True)   
         if datavalid_loader is not None:
-            result_valid = eval(model, datavalid_loader, optimizer, False)
+            result_valid = eval(model, datavalid_loader, optimizer, scheduler, False)
         else:
             result_valid = [0,0]
         if datatest_loader is not None:
-            result_test = eval(model, datatest_loader, optimizer, False)
+            result_test = eval(model, datatest_loader, optimizer,scheduler, False)
         else:
             result_test = [0,0]            
         print(f'\n Loss train {result_train[0]}, Acc train {result_train[1]};Loss valid {result_valid[0]}, Acc valid {result_valid[1]};Loss test {result_test[0]}, Acc test {result_test[1]}.')    
         if result_train[0] + result_valid[0] + result_test [0] < tmp_score:
-            save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
-            tmp_score = result_train[0] + result_valid[0] + result_test [0]
+            if path is not None:
+                save(path, model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
+                tmp_score = result_train[0] + result_valid[0] + result_test [0]
+            else:
+                if not os.path.exists('checkpoint'):
+                    os.makedirs('checkpoint')
+                save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
+                tmp_score = result_train[0] + result_valid[0] + result_test [0]                    
