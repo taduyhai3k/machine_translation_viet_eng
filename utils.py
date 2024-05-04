@@ -1,5 +1,5 @@
 import torch
-import numpy
+import numpy as np
 import nltk
 from tqdm import tqdm
 import torch.optim as optim
@@ -8,7 +8,7 @@ def SparseCrossEntropy(true, pred):
     #shape pred is [batch_size, length, embed_size]
     #shape true is [batch_size, length]
     pred_tmp = torch.gather(pred[:, :-1, :].softmax(dim = -1), dim = -1, index = true.unsqueeze(dim = -1)[:, 1:,:])
-    return (torch.log(pred_tmp) * -1 ).sum() 
+    return (torch.log(pred_tmp) * -1 ).sum() / (true.shape[0] * true.shape[1])
 
 def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
     if step_num == 0:
@@ -19,6 +19,13 @@ def bleu_score(infer, candi):
     candi_numpy = candi.to('cpu').detach().numpy().astype(str).tolist()
     infer_numpy = infer.to('cpu').detach().numpy().astype(str).tolist()
     return nltk.translate.bleu_score.corpus_bleu(infer_numpy,candi_numpy)
+
+def accuracy(true, pred):
+    #shape pred is [batch_size, length, embed_size]
+    #shape true is [batch_size, length]    
+    pred_tmp = torch.argmax(pred, dim = -1)
+    weights = true > 0
+    return ((pred_tmp == true) * weights).sum() / (weights.sum())
 
 def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
     #translate one sentences
@@ -56,7 +63,8 @@ def load(path, model, optimizer, scheduler):
     return model, optimizer, scheduler, epoch, score            
 
 def eval(model, data_loader,optimizer, is_training = True):
-    mean_loss = 0        
+    mean_loss = []      
+    acc = []  
     infer = None
     candidate = None    
     device = 'cuda' if torch.cuda.is_available() else 'cpu'    
@@ -68,7 +76,8 @@ def eval(model, data_loader,optimizer, is_training = True):
             input, target = input.to(device), target.to(device)
             output = model(input, target)
             loss = SparseCrossEntropy(target, output)
-            mean_loss += loss.item()
+            mean_loss.append(loss.item())
+            acc.append(accuracy(target, output).item())
             loss.backward()
             optimizer.step()       
             #if infer is not None:
@@ -82,7 +91,8 @@ def eval(model, data_loader,optimizer, is_training = True):
     else:
         model.eval()    
         with torch.no_grad():
-            mean_loss = 0        
+            mean_loss = []   
+            acc = []     
             infer = None
             candidate = None
             data_iter = tqdm(data_loader, desc='Not training', position=0, leave=True)        
@@ -90,7 +100,8 @@ def eval(model, data_loader,optimizer, is_training = True):
                 input, target = input.to(device), target.to(device)
                 output = model(input, target)
                 loss  = SparseCrossEntropy(target, output)
-                mean_loss += loss.item()
+                mean_loss.append(loss.item())
+                acc.append(accuracy(target, output).item())
                 #if infer is not None:
                     #infer = torch.cat([infer, output], dim = 0)
                 #else:
@@ -99,7 +110,7 @@ def eval(model, data_loader,optimizer, is_training = True):
                     #candidate = torch.cat([candidate, target], dim = 0)   
                 #else:
                     #candidate = target      
-    return mean_loss, 0            
+    return np.mean(np.array(mean_loss)), np.mean(np.array(acc))            
                 
                     
 
@@ -121,7 +132,7 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
             result_test = eval(model, datatest_loader, optimizer, False)
         else:
             result_test = [0,0]            
-        print(f'\n Loss train {result_train[0]}, Bleu train {result_train[1]};Loss valid {result_valid[0]}, Bleu valid {result_valid[1]};Loss test {result_test[0]}, Bleu test {result_test[1]}.')    
+        print(f'\n Loss train {result_train[0]}, Acc train {result_train[1]};Loss valid {result_valid[0]}, Acc valid {result_valid[1]};Loss test {result_test[0]}, Acc test {result_test[1]}.')    
         if result_train[0] + result_valid[0] + result_test [0] < tmp_score:
             save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
             tmp_score = result_train[0] + result_valid[0] + result_test [0]
