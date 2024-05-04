@@ -11,16 +11,17 @@ parse.add_argument("--in_lang", type=str, help="input language", default='E')
 parse.add_argument("--out_lang", type=str, help="output language", default='V')
 parse.add_argument("--vocab_E", type=str, help="path Vocabulary of E", default='vocab/vocab_E.json')
 parse.add_argument("--vocab_V", type=str, help="path Vocabulary of V", default='vocab/vocab_V.json')
-parse.add_argument("--dmodel", type=int, help="Dimension of model", default=100)
-parse.add_argument("--dembed", type=int, help="Dimension of embedding", default=100)
-parse.add_argument("--d_ff", type=int, help="Dimension of feed-forward layer", default=400)
-parse.add_argument("--head", type=int, help="Number of attention heads", default=4)
+parse.add_argument("--dmodel", type=int, help="Dimension of model", default=128)
+parse.add_argument("--dembed", type=int, help="Dimension of embedding", default=128)
+parse.add_argument("--d_ff", type=int, help="Dimension of feed-forward layer", default=256)
+parse.add_argument("--head", type=int, help="Number of attention heads", default=16)
 parse.add_argument("--active", type=str, help="Type of activation function", default="relu")
-parse.add_argument("--layer", type=int, help="Number of layers", default=1)
+parse.add_argument("--layer", type=int, help="Number of layers", default=2)
 parse.add_argument("--dropout", type=float, help="Dropout rate", default=0.1)
 parse.add_argument("--eps", type=float, help="Epsilon value", default=1e-5)
 parse.add_argument("--epoch", type= int, default= 10000, help= "epoch")
 parse.add_argument("--batch_size", type= int, default= 64, help = "batch size in training and testing")
+parse.add_argument("--result_path", type= str, default= None, help = "file path to result model")
 args = parse.parse_args()
 
 if __name__ == "__main__":
@@ -37,5 +38,5 @@ if __name__ == "__main__":
         data_valid = None
         data_test = None
  
-    optimizer = utils.optim.Adam(model.parameters())     
-    utils.train(model, optimizer, args.epoch, data_train, data_valid, data_test)
+    optimizer = utils.optim.Adam(model.parameters(), lr = 1.0, betas= (0.9, 0.98), eps= 1e-9)     
+    utils.train(model, optimizer, args.epoch, data_train, data_valid, data_test, args.result_path)
