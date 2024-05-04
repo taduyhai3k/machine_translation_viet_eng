@@ -9,7 +9,7 @@ def SparseCrossEntropy(true, pred):
     #shape true is [batch_size, length]
     pred_tmp = torch.gather(pred[:, :-1, :].softmax(dim = -1), dim = -1, index = true.unsqueeze(dim = -1)[:, 1:,:])
     weights = true.unsqueeze(dim = -1)[:, 1:,:] > 0
-    return (torch.log(pred_tmp) * -1 * weights).sum() / (true.shape[0] * true.shape[1])
+    return (torch.log(pred_tmp) * -1 * weights).sum() / (weights.sum())
 
 def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
     if step_num == 0:
