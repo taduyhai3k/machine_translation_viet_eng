@@ -1,10 +1,28 @@
 import torch
 import os
+import csv
 import numpy as np
 import nltk
 from tqdm import tqdm
 import torch.optim as optim
 from torch.optim.lr_scheduler import LambdaLR
+
+def write_accuracy_to_csv(filename, train, valid, test):
+    fieldnames = ["Train Accuracy", "Validation Accuracy", "Test Accuracy", "Train Loss", "Validation Loss", "Test Loss"]
+    
+    # Kiểm tra xem file đã tồn tại chưa
+    if not os.path.isfile(filename):
+        # Nếu file chưa tồn tại, tạo một file mới và ghi thông tin đầu tiên vào nó
+        with open(filename, mode='w', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],"Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
+    else:
+        # Nếu file đã tồn tại, mở file trong chế độ append để thêm dữ liệu mới vào cuối file
+        with open(filename, mode='a', newline='') as file:
+            writer = csv.DictWriter(file, fieldnames=fieldnames)
+            writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],"Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
+
 def SparseCrossEntropy(true, pred):
     #shape pred is [batch_size, length, embed_size]
     #shape true is [batch_size, length]
@@ -118,7 +136,7 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
                     
 
 def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = None):
-    scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num))
+    scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num, d_model=model.dmodel))
     tmp_score = 1e30
     if path is not None:
         model, optimizer, scheduler, epoch_old, tmp_score = torch.load(path, model, optimizer, scheduler)
@@ -143,4 +161,5 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
                 if not os.path.exists('checkpoint'):
                     os.makedirs('checkpoint')
                 save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
-                tmp_score = result_train[0] + result_valid[0] + result_test [0]                    
+                tmp_score = result_train[0] + result_valid[0] + result_test [0]
+        write_accuracy_to_csv("metric/metric.csv", result_train, result_valid, result_test)                            
