@@ -11,9 +11,11 @@ def write_accuracy_to_csv(filename, train, valid, test):
     fieldnames = ["Train Accuracy", "Validation Accuracy", "Test Accuracy", "Train Loss", "Validation Loss", "Test Loss"]
     
     # Kiểm tra xem file đã tồn tại chưa
-    if os.path.isfile(filename):
+    if not os.path.isfile(filename):
+        if not os.path.exists('metric'):
+            os.makedirs('metric')
         # Nếu file chưa tồn tại, tạo một file mới và ghi thông tin đầu tiên vào nó
-        with open(filename, mode='w', newline='') as file:
+        with open(filename, mode='x', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],"Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
