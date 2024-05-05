@@ -73,6 +73,7 @@ def save(path, model, optimizer, scheduler, epoch, score):
         'score': score
     }           
     torch.save(state, path)
+    print("save successful")
 
 def load(path, model, optimizer, scheduler):
     if not torch.cuda.is_available():
