@@ -147,7 +147,7 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
         model, optimizer, scheduler, epoch_old, tmp_score = load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    
-    for i in tqdm(range(epoch - epoch_old), desc='Epoch', position=0, leave=True):
+    for i in tqdm(range(epoch_old, epoch), desc='Epoch', position=0, leave=True):
         result_train =  eval(model, datatrain_loader, optimizer, scheduler, True)   
         if datavalid_loader is not None:
             result_valid = eval(model, datavalid_loader, optimizer, scheduler, False)
