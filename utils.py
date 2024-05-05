@@ -9,11 +9,12 @@ from torch.optim.lr_scheduler import LambdaLR
 
 def write_accuracy_to_csv(filename, train, valid, test):
     fieldnames = ["Train Accuracy", "Validation Accuracy", "Test Accuracy", "Train Loss", "Validation Loss", "Test Loss"]
+    folder, file_name = os.path.split(filename)
     
     # Kiểm tra xem file đã tồn tại chưa
     if not os.path.isfile(filename):
-        if not os.path.exists('metric'):
-            os.makedirs('metric')
+        if not os.path.exists(folder):
+            os.makedirs(folder)
         # Nếu file chưa tồn tại, tạo một file mới và ghi thông tin đầu tiên vào nó
         with open(filename, mode='x', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
@@ -32,11 +33,15 @@ def SparseCrossEntropy(true, pred):
     weights = true.unsqueeze(dim = -1)[:, 1:,:] > 0
     return (torch.log(pred_tmp) * -1 * weights).sum() / (weights.sum())
 
-def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):
-    if step_num == 0:
-        step_num += 1
-    lr = d_model ** (-0.5) * min(step_num ** (-0.5), step_num * warmup_steps ** (-1.5))
+def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):    
+    step_tmp = step_num % 8000.0            
+    if step_tmp == 0:
+        step_tmp += 1
+    if step_num > 8000:
+        step_tmp += 1500     
+    lr = d_model ** (-0.5) * min(step_tmp ** (-0.5), step_tmp * warmup_steps ** (-1.5))
     return lr
+
 def bleu_score(infer, candi):
     candi_numpy = candi.to('cpu').detach().numpy().astype(str).tolist()
     infer_numpy = infer.to('cpu').detach().numpy().astype(str).tolist()
@@ -86,6 +91,7 @@ def load(path, model, optimizer, scheduler):
     scheduler.optimizer = optimizer
     epoch = state['epoch']
     score = state['score']
+    print("load successful")
     return model, optimizer, scheduler, epoch, score            
 
 def eval(model, data_loader,optimizer, scheduler, is_training = True):
@@ -141,10 +147,10 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
                 
                     
 
-def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = None, path1 = None):
+def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = "", path1 = ""):
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num, d_model=model.dmodel))
     tmp_score = 1e30
-    if path is not None:
+    if os.path.isfile(path):
         model, optimizer, scheduler, epoch_old, tmp_score = load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    

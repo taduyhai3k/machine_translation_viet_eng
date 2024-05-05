@@ -14,7 +14,7 @@ class MultiHeadAtten(nn.Module):
     
     def splitting_head(self,x):
         #shape x is [batch_size,length, dmodel]
-        #output shape is [batch_size, head, length, dmodel]
+        #output shape is [batch_size, head, length, dmodel // head]
         batch_size = x.shape[0]
         length = x.shape[1]
         dmodel = x.shape[2]
