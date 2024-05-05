@@ -141,7 +141,7 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num, d_model=model.dmodel))
     tmp_score = 1e30
     if path is not None:
-        model, optimizer, scheduler, epoch_old, tmp_score = torch.load(path, model, optimizer, scheduler)
+        model, optimizer, scheduler, epoch_old, tmp_score = load(path, model, optimizer, scheduler)
     else:
         epoch_old = 0    
     for i in tqdm(range(epoch - epoch_old), desc='Epoch', position=0, leave=True):
