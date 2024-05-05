@@ -75,7 +75,10 @@ def save(path, model, optimizer, scheduler, epoch, score):
     torch.save(state, path)
 
 def load(path, model, optimizer, scheduler):
-    state = torch.load(path)
+    if not torch.cuda.is_available():
+        state = torch.load(path, map_location=torch.device('cpu'))
+    else:
+        state = torch.load(path)    
     model.load_state_dict(state['model'])
     optimizer.load_state_dict(state['optimizer'])
     scheduler.load_state_dict(state['scheduler'])
