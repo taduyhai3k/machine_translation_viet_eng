@@ -11,7 +11,7 @@ def write_accuracy_to_csv(filename, train, valid, test):
     fieldnames = ["Train Accuracy", "Validation Accuracy", "Test Accuracy", "Train Loss", "Validation Loss", "Test Loss"]
     
     # Kiểm tra xem file đã tồn tại chưa
-    if not os.path.isfile(filename):
+    if os.path.isfile(filename):
         # Nếu file chưa tồn tại, tạo một file mới và ghi thông tin đầu tiên vào nó
         with open(filename, mode='w', newline='') as file:
             writer = csv.DictWriter(file, fieldnames=fieldnames)
