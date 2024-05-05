@@ -22,7 +22,7 @@ parse.add_argument("--eps", type=float, help="Epsilon value", default=1e-5)
 parse.add_argument("--epoch", type= int, default= 10000, help= "epoch")
 parse.add_argument("--batch_size", type= int, default= 64, help = "batch size in training and testing")
 parse.add_argument("--result_path", type= str, default= None, help = "file path to result model")
-parse.add_argument("--metrci_path", type= str, default= None, help = "file path to result metric")
+parse.add_argument("--metric_path", type= str, default= None, help = "file path to result metric")
 args = parse.parse_args()
 
 if __name__ == "__main__":

@@ -141,7 +141,7 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
                 
                     
 
-def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = None):
+def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = None, path1 = None):
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num, d_model=model.dmodel))
     tmp_score = 1e30
     if path is not None:
@@ -168,4 +168,4 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
                     os.makedirs('checkpoint')
                 save('checkpoint/bestmodel.pth', model, optimizer, scheduler, i, result_train[0] + result_valid[0] + result_test [0])
                 tmp_score = result_train[0] + result_valid[0] + result_test [0]
-        write_accuracy_to_csv("metric/metric.csv", result_train, result_valid, result_test)                            
+        write_accuracy_to_csv(path1, result_train, result_valid, result_test)                            
