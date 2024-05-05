@@ -14,6 +14,7 @@ class Transformer(nn.Module):
         self.out_embed = InputEmbed.InpEmbed(output_vocab_size, dembed)
         self.linear = nn.Linear(in_features= dmodel, out_features= output_vocab_size, device = self.device, dtype = torch.float32)
         self.dropout = nn.Dropout(p = dropout)
+        self.dmodel = dmodel
     
     def forward(self, x, y):
         inp_embed = self.dropout(self.inp_embed(x))
