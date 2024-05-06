@@ -20,6 +20,7 @@ parse.add_argument("--active", type=str, help="Type of activation function", def
 parse.add_argument("--layer", type=int, help="Number of layers", default=2)
 parse.add_argument("--dropout", type=float, help="Dropout rate", default=0.1)
 parse.add_argument("--eps", type=float, help="Epsilon value", default=1e-5)
+parse.add_argument("--tying", type = bool, default = False, help = "share weight in output embedding and final linear")
 parse.add_argument("--epoch", type= int, default= 10000, help= "epoch")
 parse.add_argument("--batch_size", type= int, default= 64, help = "batch size in training and testing")
 parse.add_argument("--result_path", type= str, default= None, help = "file path to result model")
@@ -37,7 +38,7 @@ if __name__ == "__main__":
     metric_path = os.path.join(args.folder, args.metric_path)
     data_train = MyData.EV_Data(path_train, inp = args.in_lang, out = args.out_lang, E_vocab_path= vocab_E, V_vocab_path= vocab_V)
     model = MyTrans.Transformer(input_vocab_size= len(data_train.inp_vocab), output_vocab_size= len(data_train.out_vocab), dmodel = args.dmodel, dembed = args.dembed, 
-                                d_ff= args.d_ff, head = args.head, active= args.active, layer= args.layer, dropout= args.dropout, eps = args.eps)     
+                                d_ff= args.d_ff, head = args.head, active= args.active, layer= args.layer, dropout= args.dropout, eps = args.eps, tying= args.tying)     
     data_train = MyData.DataLoader(data_train, batch_size= 64, shuffle= True)
     if args.path_valid is not None:
         data_valid = MyData.EV_Data(path_valid, inp = args.in_lang, out = args.out_lang, E_vocab_path= vocab_E, V_vocab_path= vocab_V)
