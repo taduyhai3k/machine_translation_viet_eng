@@ -18,8 +18,11 @@ class Transformer(nn.Module):
     
     def forward(self, x, y):
         inp_embed = self.dropout(self.inp_embed(x))
-        encoder_out = self.encoder(inp_embed)
+        padding_mask_enc = LookAheadMask.padding_mask(x)
+        encoder_out = self.encoder(inp_embed, padding_mask_enc)
         out_embed = self.dropout(self.out_embed(y))
-        decoder_out = self.decoder(out_embed, encoder_out, LookAheadMask.look_ahead_mask(inp_len= y.shape[1]))
+        look_ahead_mask = LookAheadMask.look_ahead_mask(y)
+        padding_global_mask = LookAheadMask.padding_mask_global(x, y.shape[1]) 
+        decoder_out = self.decoder(out_embed, encoder_out, None, look_ahead_mask, padding_global_mask)
         return self.linear(decoder_out)    
  
