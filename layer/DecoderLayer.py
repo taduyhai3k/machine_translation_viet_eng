@@ -21,10 +21,10 @@ class DecoderLayer(nn.Module):
         self.mha_local = MHA.MultiHeadAtten(self.dembed, self.dmodel, self.head) 
         self.mha_global = MHA.MultiHeadAtten(self.dembed, self.dmodel, self.head) 
     
-    def forward(self, x, encoder_out, mask = None):
-        mha_mask, attention_weight_local = self.mha_local(x,x,x, mask) 
+    def forward(self, x, encoder_out,  padding_mask = None, look_ahead_mask = None, padding_global_mask = None ):
+        mha_mask, attention_weight_local = self.mha_local(x,x,x, look_ahead_mask) 
         q = self.norm1(x + self.dropout(mha_mask))
-        mha_global, attention_weight_global = self.mha_global(q, encoder_out, encoder_out)
+        mha_global, attention_weight_global = self.mha_global(q, encoder_out, encoder_out, padding_global_mask)
         out_global = self.norm2(q + self.dropout(mha_global))
         outff = self.ff(out_global)
         out = self.norm3(out_global + self.dropout(outff))

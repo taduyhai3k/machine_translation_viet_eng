@@ -18,8 +18,8 @@ class EncoderLayer(torch.nn.Module):
         self.ff = FF.FeedForward(self.dmodel, self.d_ff, self.active)
         self.mha = MAH.MultiHeadAtten(self.dembed, self.dmodel, self.head) 
         
-    def forward(self, x, mask = None):
-        mha_out,_ = self.mha(x,x,x, mask)  
+    def forward(self, x, padding_mask = None, look_ahead_mask = None, padding_global_mask = None ):
+        mha_out,_ = self.mha(x,x,x, padding_mask)  
         out = self.norm1(x + self.dropout(mha_out))         
         ffo = self.ff(out)
         ffo = self.norm2(out + self.dropout(ffo))

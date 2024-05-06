@@ -16,8 +16,8 @@ class Encoder(nn.Module):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.encoder_layer = nn.ModuleList([EncoderLayer.EncoderLayer(self.dembed, self.dmodel,self.d_ff, self.head, self.active, self.drop_rate, self.eps ) for i in range(self.layer)])
     
-    def forward(self, x, mask = None):
+    def forward(self, x, padding_mask = None, look_ahead_mask = None, padding_global_mask = None ):
         out = x
         for i in range(self.layer):
-            out = self.encoder_layer[i](out, mask)        
+            out = self.encoder_layer[i](out, padding_mask, look_ahead_mask, padding_global_mask)        
         return out    

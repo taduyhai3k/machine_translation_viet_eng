@@ -23,8 +23,10 @@ class MultiHeadAtten(nn.Module):
     
     def scaled_dot_product(self, q, k, v, mask = None):
         dk = k.shape[-1]
+        head = q.shape[1]
         attention_score = torch.matmul(q, k.transpose(2,3)) / torch.math.sqrt(dk)   
         if mask is not None:
+            mask = mask.unsqueeze(1).repeat(1,head,1,1)
             attention_score += mask * -1e30
         attention_weight = attention_score.softmax(dim = -1)
         out = torch.matmul(attention_weight, v)

@@ -16,8 +16,8 @@ class Decoder(nn.Module):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.decoder_layer = nn.ModuleList([DecoderLayer.DecoderLayer(self.dembed, self.dmodel,self.d_ff, self.head, self.active, self.drop_rate, self.eps ) for i in range(self.layer)])
     
-    def forward(self, x, encoder_out, mask = None):
+    def forward(self, x, encoder_out, padding_mask = None, look_ahead_mask = None, padding_global_mask = None ):
         out = x
         for i in range(self.layer):
-            out,_,_  = self.decoder_layer[i](out,encoder_out, mask)        
+            out,_,_  = self.decoder_layer[i](out,encoder_out,padding_mask, look_ahead_mask, padding_global_mask)        
         return out    
