@@ -33,12 +33,13 @@ def SparseCrossEntropy(true, pred):
     weights = true.unsqueeze(dim = -1)[:, 1:,:] > 0
     return (torch.log(pred_tmp) * -1 * weights).sum() / (weights.sum())
 
-def transformer_lr(step_num, d_model = 512, warmup_steps = 4000):    
-    step_tmp = step_num % 6000.0            
+def transformer_lr(step_num, d_model = 512, warmup_steps = 4000, max_step = 40000):  
+    if max_step > warmup_steps:  
+        step_tmp = step_num % max_step           
     if step_tmp == 0:
         step_tmp += 1
-    if step_num > 6000:
-        step_tmp += 2000     
+    if step_num > max_step:
+        step_tmp += warmup_steps / 2     
     lr = d_model ** (-0.5) * min(step_tmp ** (-0.5), step_tmp * warmup_steps ** (-1.5))
     return lr
 
