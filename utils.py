@@ -115,7 +115,7 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
             loss.backward()
             optimizer.step()
             scheduler.step()
-            if i // 200 == 0:
+            if i % 200 == 0:
                 print(f"Vòng lặp thứ {i}, loss {np.mean(np.array(mean_loss))}, acc {np.mean(np.array(acc))}")    
             i += 1       
             #if infer is not None:
