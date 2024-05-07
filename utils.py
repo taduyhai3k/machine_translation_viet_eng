@@ -103,7 +103,8 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
     device = 'cuda' if torch.cuda.is_available() else 'cpu'    
     if is_training:
         model.train()
-        data_iter = tqdm(data_loader, desc='Training', position=0, leave=True)        
+        data_iter = tqdm(data_loader, desc='Training', position=0, leave=True)     
+        i = 1   
         for input, target in data_iter:
             optimizer.zero_grad()
             input, target = input.to(device), target.to(device)
@@ -113,7 +114,10 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
             acc.append(accuracy(target, output).item())
             loss.backward()
             optimizer.step()
-            scheduler.step()       
+            scheduler.step()
+            if i // 200 == 0:
+                print(f"Vòng lặp thứ {i}, loss {np.mean(np.array(mean_loss))}, acc {np.mean(np.array(acc))}")    
+            i += 1       
             #if infer is not None:
                 #infer = torch.cat([infer, output.to('cpu').argmax(dim = -1)], dim = 0)
             #else:
