@@ -53,7 +53,7 @@ def accuracy(true, pred):
     #shape true is [batch_size, length]    
     pred_tmp = torch.argmax(pred, dim = -1)[:, :-1]
     weights = true[:, 1:] > 0
-    return ((pred_tmp == true) * weights).sum() / (weights.sum())
+    return ((pred_tmp == true[:,1:]) * weights).sum() / (weights.sum())
 
 def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
     #translate one sentences
