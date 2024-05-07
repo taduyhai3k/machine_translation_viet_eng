@@ -27,7 +27,7 @@ class Transformer(nn.Module):
         padding_global_mask = LookAheadMask.padding_mask_global(x, y.shape[1]) 
         decoder_out = self.decoder(out_embed, encoder_out, None, look_ahead_mask, padding_global_mask)
         if self.tying:
-            return torch.matmul(decoder_out ,self.out_embed.map.transpose(0,1)).sigmoid()
+            return torch.matmul(decoder_out ,self.out_embed.map.weight)
         else:
             return self.linear(decoder_out)    
  

@@ -6,11 +6,11 @@ class InpEmbed(nn.Module):
         self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
         self.vocab_size = vocab_size
         self.dembed = dembed
-        self.map = torch.randn(size = [self.vocab_size, self.dembed], dtype = torch.float32, requires_grad= True, device = self.device)
+        self.map = nn.Linear(in_features= self.vocab_size, out_features= self.dembed, device= self.device, dtype= torch.float32)
     def forward(self, x):
         # x.shape is [batch, sequence_length index]   
         one_hot = torch.zeros(size = [x.shape[0], x.shape[1], self.vocab_size], dtype= torch.float32, device= self.device).scatter_(2, x.unsqueeze(2), 1.0)
-        return torch.matmul(one_hot, self.map) + embed_position(dembed= self.dembed, sequence_length = x.shape[1] ,device= self.device)
+        return self.map(one_hot) + embed_position(dembed= self.dembed, sequence_length = x.shape[1] ,device= self.device)
     
 def embed_position(dembed = 512, sequence_length = 300, device = 'cpu'):
     #dembed is 2n
