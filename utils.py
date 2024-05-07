@@ -51,10 +51,10 @@ def bleu_score(infer, candi):
     return nltk.translate.bleu_score.corpus_bleu(infer_numpy,candi_numpy)
 
 def accuracy(true, pred):
-    #shape pred is [batch_size, length, embed_size]
+    #shape pred is [batch_size, length, vocab_size]
     #shape true is [batch_size, length]    
-    pred_tmp = torch.argmax(pred, dim = -1)
-    weights = true > 0
+    pred_tmp = torch.argmax(pred, dim = -1)[:, :-1]
+    weights = true[:, 1:] > 0
     return ((pred_tmp == true) * weights).sum() / (weights.sum())
 
 def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
