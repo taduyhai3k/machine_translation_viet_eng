@@ -67,6 +67,10 @@ class EV_Data(Dataset):
             output = self.out_tokenizer.encode(self.data.iloc[index]['V'])
         else:
             input = self.inp_tokenizer.encode(self.data.iloc[index]['V']) 
-            output = self.out_tokenizer.encode(self.data.iloc[index]['E'])                
+            output = self.out_tokenizer.encode(self.data.iloc[index]['E'])       
+        if len(input)> self.max_length:
+            input = input[:self.max_length]
+        if len(output)> self.max_length:
+            output = output[:self.max_length]                 
         return torch.nn.functional.pad(input, pad = (0, self.max_length - input.shape[0]), value = 0), torch.nn.functional.pad(output, pad = (0, self.max_length - output.shape[0]), value = 0)
     
