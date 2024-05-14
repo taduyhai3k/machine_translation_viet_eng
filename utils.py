@@ -33,7 +33,7 @@ def SparseCrossEntropy(true, pred):
     weights = true.unsqueeze(dim = -1)[:, 1:,:] > 0
     return (torch.log(pred_tmp) * -1 * weights).sum() / (weights.sum())
 
-def transformer_lr(step_num, d_model = 512, warmup_steps = 3000, max_step = 40000):  
+def transformer_lr(step_num, d_model = 512, warmup_steps = 4000, max_step = 40000):  
     if max_step > warmup_steps:  
         step_tmp = step_num % max_step           
     if step_tmp == 0:
@@ -59,14 +59,14 @@ def predict(model, data, inp_tokennizer, out_tokenizer, max_lenth = 300):
     #translate one sentences
     model.eval()
     inp_encode = inp_tokennizer.encode(data).reshape(1, -1)
-    out_encode = out_tokenizer.encode('<start>').reshape(1, -1)
+    out_encode = out_tokenizer.encode('<start>')[1].reshape(1, -1)
     with torch.no_grad():
         for i in range(max_lenth):
             pred = model(inp_encode, out_encode)
             preds = pred[:, -1, :].reshape(1, -1)
-            predict_id = torch.argmax(preds, dim = -1)
-            out_encode = torch.cat([out_encode, pred], dim = -1)
-            if out_tokenizer.encode('<end>')[0] == predict_id:
+            predict_id = torch.argmax(preds, dim = -1, keepdim= True).type(torch.int64)
+            out_encode = torch.cat([out_encode, predict_id], dim = -1)
+            if out_tokenizer.encode('<end>')[1] == predict_id:
                 return out_tokenizer.decode(out_encode.reshape(-1))
     return out_tokenizer.decode(out_encode.reshape(-1))     
 
@@ -95,7 +95,7 @@ def load(path, model, optimizer, scheduler):
     print("load successful")
     return model, optimizer, scheduler, epoch, score            
 
-def eval(model, data_loader,optimizer, scheduler, is_training = True):
+def eval(model, data_loader,optimizer, scheduler, is_training = True, reduce = False):
     mean_loss = []      
     acc = []  
     infer = None
@@ -112,6 +112,12 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
             loss = SparseCrossEntropy(target, output)
             mean_loss.append(loss.item())
             acc.append(accuracy(target, output).item())
+            if reduce:
+                output1 = model(target, input)
+                loss1= SparseCrossEntropy(input, output1)
+                mean_loss.append(loss1.item())
+                acc.append(accuracy(input, output1).item())
+                loss += loss1
             loss.backward()
             optimizer.step()
             scheduler.step()
@@ -140,6 +146,11 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True):
                 loss  = SparseCrossEntropy(target, output)
                 mean_loss.append(loss.item())
                 acc.append(accuracy(target, output).item())
+                if reduce:
+                    output1 = model(target, input)
+                    loss1 = SparseCrossEntropy(input, output1)
+                    mean_loss.append(loss1.item())
+                    acc.append(accuracy(input, output1).item())
                 #if infer is not None:
                     #infer = torch.cat([infer, output], dim = 0)
                 #else:
