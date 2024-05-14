@@ -53,7 +53,7 @@ class TransformerReduce(nn.Module):
         padding_global_mask = LookAheadMask.padding_mask_global(x, y.shape[1]) 
         decoder_out = self.decoder(out_embed, encoder_out, None, look_ahead_mask, padding_global_mask)
         if self.tying:
-            return torch.matmul(decoder_out ,self.inp_embed.map.weight)
+            return torch.matmul(decoder_out ,self.inp_embed.map.weight.t())
         else:
             return self.linear(decoder_out)           
          
