@@ -108,16 +108,15 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True, reduce = F
         for input, target in data_iter:
             optimizer.zero_grad()
             input, target = input.to(device), target.to(device)
+            if reduce:
+                tmp_in = input
+                tmp_ta = target
+                input = torch.cat([tmp_in, tmp_ta], dim = 0)
+                target = torch.cat([tmp_ta, tmp_in], dim = 0)
             output = model(input, target)
             loss = SparseCrossEntropy(target, output)
             mean_loss.append(loss.item())
             acc.append(accuracy(target, output).item())
-            if reduce:
-                output1 = model(target, input)
-                loss1= SparseCrossEntropy(input, output1)
-                mean_loss.append(loss1.item())
-                acc.append(accuracy(input, output1).item())
-                loss += loss1
             loss.backward()
             optimizer.step()
             scheduler.step()
@@ -142,15 +141,15 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True, reduce = F
             data_iter = tqdm(data_loader, desc='Not training', position=0, leave=True)        
             for input, target in data_iter:
                 input, target = input.to(device), target.to(device)
+                if reduce:
+                    tmp_in = input
+                    tmp_ta = target
+                    input = torch.cat([tmp_in, tmp_ta], dim = 0)
+                    target = torch.cat([tmp_ta, tmp_in], dim = 0)
                 output = model(input, target)
                 loss  = SparseCrossEntropy(target, output)
                 mean_loss.append(loss.item())
                 acc.append(accuracy(target, output).item())
-                if reduce:
-                    output1 = model(target, input)
-                    loss1 = SparseCrossEntropy(input, output1)
-                    mean_loss.append(loss1.item())
-                    acc.append(accuracy(input, output1).item())
                 #if infer is not None:
                     #infer = torch.cat([infer, output], dim = 0)
                 #else:
