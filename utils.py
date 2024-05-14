@@ -163,7 +163,7 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True, reduce = F
                 
                     
 
-def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, path = "", path1 = ""):
+def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, datatest_loader = None, reduce = False,path = "", path1 = ""):
     scheduler = LambdaLR(optimizer, lr_lambda= lambda step_num : transformer_lr(step_num=step_num, d_model=model.dmodel))
     tmp_score = 1e30
     if os.path.isfile(path):
@@ -171,13 +171,13 @@ def train(model, optimizer, epoch, datatrain_loader,datavalid_loader = None, dat
     else:
         epoch_old = 0    
     for i in tqdm(range(epoch_old, epoch), desc='Epoch', position=0, leave=True):
-        result_train =  eval(model, datatrain_loader, optimizer, scheduler, True)   
+        result_train =  eval(model, datatrain_loader, optimizer, scheduler, True, reduce=reduce)   
         if datavalid_loader is not None:
-            result_valid = eval(model, datavalid_loader, optimizer, scheduler, False)
+            result_valid = eval(model, datavalid_loader, optimizer, scheduler, False, reduce= reduce)
         else:
             result_valid = [0,0]
         if datatest_loader is not None:
-            result_test = eval(model, datatest_loader, optimizer,scheduler, False)
+            result_test = eval(model, datatest_loader, optimizer,scheduler, False, reduce= reduce)
         else:
             result_test = [0,0]            
         print(f'\n Loss train {result_train[0]}, Acc train {result_train[1]};Loss valid {result_valid[0]}, Acc valid {result_valid[1]};Loss test {result_test[0]}, Acc test {result_test[1]}.')    
