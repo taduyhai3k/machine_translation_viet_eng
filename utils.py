@@ -117,9 +117,9 @@ def eval(model, data_loader,optimizer, scheduler, is_training = True, reduce = F
             loss = SparseCrossEntropy(target, output)           
             mean_loss.append(loss.item())
             acc.append(accuracy(target, output).item())
-            output = output.to('cpu')
-            input = input.to('cpu')
-            target = target.to('cpu')
+            del output
+            del input
+            del target
             loss.backward()
             optimizer.step()
             scheduler.step()
