@@ -40,6 +40,7 @@ def SparseCrossEntropy(true, pred):
     #shape pred is [batch_size, length, embed_size]
     #shape true is [batch_size, length]
     pred_tmp = torch.gather(pred.softmax(dim = -1)[:, :-1, :], dim = -1, index = true.unsqueeze(dim = -1)[:, 1:,:])
+    pred_tmp[pred_tmp < 1e-40] = 1e-40 
     weights = true.unsqueeze(dim = -1)[:, 1:,:] > 0
     return (torch.log(pred_tmp) * -1 * weights).sum() / (weights.sum())
 
