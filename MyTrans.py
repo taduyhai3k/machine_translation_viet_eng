@@ -56,7 +56,7 @@ class TransformerParallel(nn.Module):
             inp_embed = self.dropout(self.V_embed(x))
             padding_mask_enc = LookAheadMask.padding_mask(x)
             encoder_out = self.SpeV(inp_embed, is_encode = True, padding_mask = padding_mask_enc)
-            out_embed = self.dropout(self.V_embed(y))
+            out_embed = self.dropout(self.E_embed(y))
             look_ahead_mask = LookAheadMask.look_ahead_mask(y)
             padding_global_mask = LookAheadMask.padding_mask_global(x, y.shape[1]) 
             decoder_out = self.SpeE(out_embed, False ,encoder_out, None, look_ahead_mask, padding_global_mask)
