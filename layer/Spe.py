@@ -19,5 +19,5 @@ class Spe(nn.Module):
     def forward(self, x, is_encode = True, encoder_out = None, padding_mask = None, look_ahead_mask = None, padding_global_mask = None ):
         out = x
         for i in range(self.layer):
-            out,_,_  = self.spy_layer[i](out, is_encode,encoder_out,padding_mask, look_ahead_mask, padding_global_mask)        
+            out,_,_  = self.spe_layer[i](out, is_encode,encoder_out,padding_mask, look_ahead_mask, padding_global_mask)        
         return out    
