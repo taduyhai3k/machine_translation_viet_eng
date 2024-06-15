@@ -14,6 +14,9 @@ class MyTokenizer():
         w = w.lower().strip()
         w = re.sub(r"([?.!,¿])", r" \1 ", w)
         w = re.sub(r'[" "]+', " ", w)
+        w = re.sub(r'-{2,}', '-', w)  # Thay thế 2 hoặc nhiều dấu gạch ngang liên tiếp bằng 1 dấu gạch ngang
+        w = re.sub(r'-+', ' - ', w)  # Thêm khoảng trắng xung quanh dấu gạch ngang hoặc chuỗi dấu gạch ngang
+        w = re.sub(r'\s+', ' ', w)  # Loại bỏ khoảng trắng thừa
         w = w.strip()
         # Add start and end token 
         w = '{} {} {}'.format(self.BOS, w, self.EOS)
