@@ -243,6 +243,7 @@ def eval_parallel(model, data_loader,optimizer, scheduler, is_training = True):
             for input, target in data_iter:
                 input, target = input.to(device), target.to(device)
                 output = model(input, target, inp = 'E')      
+                loss = SparseCrossEntropy(input, output)                     
                 mean_loss_E_V.append(loss.item())
                 acc_E_V.append(accuracy(target, output).item())
                 output = model(target, input, inp = 'V')          
