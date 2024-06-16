@@ -9,32 +9,50 @@ from torch.optim.lr_scheduler import LambdaLR
 
 def write_accuracy_to_csv(filename, train, valid, test):
     fieldnames = ["Train Accuracy", "Validation Accuracy", "Test Accuracy", "Train Loss", "Validation Loss", "Test Loss"]
-    fieldnames_pararel = ["Train Accuracy E2V", "Train Accuracy V2E," "Validation Accuracy E2V", "Validation Accuracy V2E","Test Accuracy E2V", "Test Accuracy V2E", "Train Loss E2V", "Train Loss V2E","Validation Loss E2V", "Validation Loss V2E","Test Loss E2V", "Test Loss V2E"]    
-    folder, file_name = os.path.split(filename)    
+    fieldnames_pararel = ["Train Accuracy E2V", "Train Accuracy V2E", "Validation Accuracy E2V", "Validation Accuracy V2E", "Test Accuracy E2V", "Test Accuracy V2E", "Train Loss E2V", "Train Loss V2E", "Validation Loss E2V", "Validation Loss V2E", "Test Loss E2V", "Test Loss V2E"]
+    
+    folder, file_name = os.path.split(filename)
+    
     # Kiểm tra xem file đã tồn tại chưa
     if not os.path.isfile(filename):
         if not os.path.exists(folder):
             os.makedirs(folder)
         # Nếu file chưa tồn tại, tạo một file mới và ghi thông tin đầu tiên vào nó
         with open(filename, mode='x', newline='') as file:
-            if len(train) < 3:
+            if len(train) < 4:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
                 writer.writeheader()
-                writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],"Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
+                writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1], "Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
             else:
-                writer = csv.DictWriter(file, fieldnames= fieldnames_pararel)
+                writer = csv.DictWriter(file, fieldnames=fieldnames_pararel)
                 writer.writeheader()
-                writer.writerow({"Train Accuracy E2V" : train[1], "Train Accuracy V2E": train[3], "Validation Accuracy E2V": valid[1], "Validation Accuracy V2E": valid[3], "Test Accuracy E2V" : test[1], "Test Accuracy V2E": test[3], "Train Loss E2V": train[0], "Train Loss V2E": train[2],"Validation Loss E2V": valid[0], "Validation Loss V2E": valid[2],"Test Loss E2V": test[0], "Test Loss V2E": test[2]})    
+                writer.writerow({
+                    "Train Accuracy E2V": train[1], "Train Accuracy V2E": train[3],
+                    "Validation Accuracy E2V": valid[1], "Validation Accuracy V2E": valid[3],
+                    "Test Accuracy E2V": test[1], "Test Accuracy V2E": test[3],
+                    "Train Loss E2V": train[0], "Train Loss V2E": train[2],
+                    "Validation Loss E2V": valid[0], "Validation Loss V2E": valid[2],
+                    "Test Loss E2V": test[0], "Test Loss V2E": test[2]
+                })
     else:
         # Nếu file đã tồn tại, mở file trong chế độ append để thêm dữ liệu mới vào cuối file
         with open(filename, mode='a', newline='') as file:
-            if len(train)<3:
+            if len(train) < 4:
                 writer = csv.DictWriter(file, fieldnames=fieldnames)
-                writer.writerow({"Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],"Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]})
+                writer.writerow({
+                    "Train Accuracy": train[1], "Validation Accuracy": valid[1], "Test Accuracy": test[1],
+                    "Train Loss": train[0], "Validation Loss": valid[0], "Test Loss": test[0]
+                })
             else:
-                write = csv.DictWriter(file, fieldnames= fieldnames_pararel)
-                writer.writerow({"Train Accuracy E2V" : train[1], "Train Accuracy V2E": train[3], "Validation Accuracy E2V": valid[1], "Validation Accuracy V2E": valid[3], "Test Accuracy E2V" : test[1], "Test Accuracy V2E": test[3], "Train Loss E2V": train[0], "Train Loss V2E": train[2],"Validation Loss E2V": valid[0], "Validation Loss V2E": valid[2],"Test Loss E2V": test[0], "Test Loss V2E": test[2]}) 
-                    
+                writer = csv.DictWriter(file, fieldnames=fieldnames_pararel)
+                writer.writerow({
+                    "Train Accuracy E2V": train[1], "Train Accuracy V2E": train[3],
+                    "Validation Accuracy E2V": valid[1], "Validation Accuracy V2E": valid[3],
+                    "Test Accuracy E2V": test[1], "Test Accuracy V2E": test[3],
+                    "Train Loss E2V": train[0], "Train Loss V2E": train[2],
+                    "Validation Loss E2V": valid[0], "Validation Loss V2E": valid[2],
+                    "Test Loss E2V": test[0], "Test Loss V2E": test[2]
+                })
 
 def SparseCrossEntropy(true, pred):
     #shape pred is [batch_size, length, embed_size]
